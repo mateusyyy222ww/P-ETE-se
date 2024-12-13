@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <base href="https://library.example.com/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Literária Interativa - Edição Noturna</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+      :root {
+        --primary-color: #4cc9f0;
+        --secondary-color: #f72585;
+        --background-color: #0a0a0a;
+        --text-color: #e0e0e0;
+        --card-background: #1a1a1a;
+        --hover-color: #7209b7;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        overflow-x: hidden;
+      }
+
+      header {
+        background-color: rgba(10, 10, 10, 0.8);
+        color: var(--primary-color);
+        padding: 1rem 0;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(76, 201, 240, 0.3);
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+      }
+
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 10px var(--primary-color);
+      }
+
+      .search-container {
+        margin: 6rem 0 2rem;
+        display: flex;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      #searchInput {
+        width: 70%;
+        padding: 0.8rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 25px;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        box-shadow: 0 0 20px rgba(76, 201, 240, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      #searchInput:focus {
+        outline: none;
+        box-shadow: 0 0 30px rgba(76, 201, 240, 0.5);
+        width: 75%;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .category-filter {
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      #categorySelect {
+        padding: 0.5rem;
+        font-size: 1rem;
+        background-color: var(--card-background);
+        color: var(--text-color);
+        border: 1px solid var(--primary-color);
+        border-radius: 5px;
+      }
+
+      .library-desktop {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        padding: 2rem 0;
+      }
+
+      .library-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem 0;
+      }
+
+      .book {
+        background-color: var(--card-background);
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+        margin-bottom: 1rem;
+        width: 90%;
+      }
+
+      .book-cover {
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .book-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .book-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1rem;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.7);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+      }
+
+      .book-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .book:hover .book-overlay {
+        opacity: 1;
+      }
+
+      .book-author {
+        font-size: 1rem;
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+
+      .book-category {
+        color: var(--secondary-color);
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+
+      .download-btn {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 15px rgba(247, 37, 133, 0.5);
+      }
+
+      .download-btn:hover {
+        background-color: var(--hover-color);
+        transform: scale(1.1);
+        box-shadow: 0 0 25px rgba(114, 9, 183, 0.7);
+      }
+
+      #particles-js {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: -1;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .search-container {
+          flex-direction: column;
+          margin-top: 5rem;
+        }
+
+        #searchInput {
+          width: 90%;
+          margin-bottom: 1rem;
+        }
+
+        #categorySelect {
+          width: 90%;
+        }
+
+        .book {
+          transition: none;
+        }
+      }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<header>
+  <h1>Biblioteca Literária Interativa</h1>
+  <p>Explore uma vasta coleção de obras-primas literárias</p>
+</header>
+
+<div class="container">
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Pesquisar livros por título ou autor...">
+  </div>
+
+  <div class="category-filter">
+    <select id="categorySelect">
+      <option value="">Todas as Categorias</option>
+      <option value="LITERATURA">LITERATURA</option>
+      <option value="LITERATURA AFRO-BRASILEIRA">LITERATURA AFRO-BRASILEIRA</option>
+      <option value="MEIO AMBIENTE / SUSTENTABILIDADE">MEIO AMBIENTE / SUSTENTABILIDADE</option>
+      <option value="DIVERSOS">DIVERSOS</option>
+    </select>
+  </div>
+
+  <div class="library library-desktop" id="bookshelf-desktop">
+    <h2>LITERATURA</h2>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/dom-casmurro.jpg" alt="Dom Casmurro" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/dom-casmurro.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Dom Casmurro</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/helena.jpg" alt="Helena" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/helena.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Helena</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/varias-historias.jpg" alt="Várias Histórias" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/varias-historias.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Várias Histórias</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/contos-consagrados.jpg" alt="Contos consagrados" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/contos-consagrados.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Contos consagrados</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/historias-da-meia-noite.jpg" alt="Histórias da meia noite" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/historias-da-meia-noite.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Histórias da meia noite</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/o-homem-que-sabia-javanes.jpg" alt="O Homem que sabia Javanês" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Lima Barreto</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/o-homem-que-sabia-javanes.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">O Homem que sabia Javanês</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/o-santo-e-a-porca.jpg" alt="O Santo e a Porca" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Ariano Suassuna</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/o-santo-e-a-porca.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">O Santo e a Porca</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/o-olhar-da-plateia.jpg" alt="O Olhar da plateia" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">José de Nicola / Lucas S.R. De Nicola</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/o-olhar-da-plateia.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">O Olhar da plateia</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/auto-da-compadecida.jpg" alt="Auto da Compadecida" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Ariano Suassuna</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/auto-da-compadecida.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Auto da Compadecida</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/forca-da-boa-preguica.jpg" alt="Farça da Boa Preguiça" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Ariano Suassuna</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/forca-da-boa-preguica.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Farça da Boa Preguiça</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/pedra-do-reino.jpg" alt="Pedra do Reino" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Ariano Suassuna</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/pedra-do-reino.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Pedra do Reino</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/25-contos-machado.jpg" alt="25 Contos Machado de Assis" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Nádia Battella Gotlib</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/25-contos-machado.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">25 Contos Machado de Assis</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/capitães-de-areia.jpg" alt="Capitães de areia" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Jorge Amado</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/capitaes-de-areia.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Capitães de areia</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/o-mulato.jpg" alt="O Mulato" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Aluízio de Azevedo</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/o-mulato.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">O Mulato</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/memorias-postumas.jpg" alt="Memórias Póstumas de Brás Cubas" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/memorias-postumas.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Memórias Póstumas de Brás Cubas</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/sermoes.jpg" alt="Sermões" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Padre Antonio Vieira</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/sermoes.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Sermões</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/iracema.jpg" alt="Iracema" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">José de Alencar</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/iracema.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Iracema</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/grande-sertao.jpg" alt="Grande Sertão: Veredas" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">João Guimarães Rosa</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/grande-sertao.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Grande Sertão: Veredas</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/o-espelho.jpg" alt="O espelho e outros contos" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/o-espelho.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">O espelho e outros contos</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/os-lusiadas.jpg" alt="Os Lusíadas" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Camões</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/os-lusiadas.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Os Lusíadas</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/marilia-de-dirceu.jpg" alt="Marília de Dirceu" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Tomás Antonio Gonzaga</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/marilia-de-dirceu.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Marília de Dirceu</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/os-sermoes.jpg" alt="Os Sermões" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Pe. Antonio Vieira</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/os-sermoes.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Os Sermões</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/poemas-escolhidos.jpg" alt="Poemas escolhidos" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Gregório de Matos Guerra</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/poemas-escolhidos.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Poemas escolhidos</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/dom-quixote.jpg" alt="Dom Quixote" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Miguel de Cervantes</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/dom-quixote.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Dom Quixote</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/memorias-postumas-2.jpg" alt="Memórias Póstumas de Brás Cubas" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Machado de Assis</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/memorias-postumas-2.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Memórias Póstumas de Brás Cubas</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/o-cortico.jpg" alt="O Cortiço" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Aluízio Azevedo</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/o-cortico.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">O Cortiço</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/iracema-2.jpg" alt="Iracema" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">José de Alencar</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/iracema-2.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Iracema</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/senhora.jpg" alt="Senhora" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">José de Alencar</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/senhora.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Senhora</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/luciola.jpg" alt="Lucíola" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">José de Alencar</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/luciola.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Lucíola</div>
+    </div>
+    <div class="book">
+      <div class="book-cover">
+        <img src="https://example.com/os-sertoes.jpg" alt="Os Sertões" class="book-image">
+        <div class="book-overlay">
+          <div class="book-author">Euclides da Cunha</div>
+          <div class="book-category">LITERATURA</div>
+          <button class="download-btn" onclick="downloadBook('https://example.com/download/os-sertoes.pdf')">Baixar</button>
+        </div>
+      </div>
+      <div class="book-title">Os Sertões</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function downloadBook(url) {
+    window.open(url, '_blank');
+  }
+</script>
+
+</body>
+</html>
